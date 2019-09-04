@@ -84,7 +84,8 @@ public class GameElement : MonoBehaviour
         }
         if (BonusType == BonusTypeEnum.ChangeCravityBonus)
         {
-            Instantiate(changeGravityBonusSpritePrefab, transform.position, Quaternion.identity, transform);
+            Vector3 pos = new Vector3(transform.position.x, transform.position.y, -0.5f);
+            Instantiate(changeGravityBonusSpritePrefab, pos, Quaternion.identity, transform);
         }
         
     }

@@ -33,7 +33,7 @@ public class ElementMover : MonoBehaviour
             {
                 GameManager.Instance.Grid[gameElement.Column, gameElement.Row] = gameElement;
             }
-            GameManager.Instance.MatchManager.FindAllMatches();
+            GameManager.Instance.MatchManager.ProcessMatches();
         }
         else
         {
@@ -52,7 +52,7 @@ public class ElementMover : MonoBehaviour
             {
                 GameManager.Instance.Grid[gameElement.Column, gameElement.Row] = gameElement;
             }
-            GameManager.Instance.MatchManager.FindAllMatches();
+            GameManager.Instance.MatchManager.ProcessMatches();
 
         }
         else

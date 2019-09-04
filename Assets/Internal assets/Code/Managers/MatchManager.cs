@@ -9,50 +9,51 @@ public class MatchManager : MonoBehaviour
     public List<GameElement> currentBonus = new List<GameElement>();
     bool isBonus =  false;
 
-    public void FindAllMatches()
+    public void ProcessMatches()
     {
-        StartCoroutine(FindAllMatchesCo());
+        StartCoroutine(ProcessMatchesCo());
     }
 
     private bool IsBonus(GameElement element)
     {
         return element.BonusType != BonusTypeEnum.None;
     }
-    private void AddBonusToList(GameElement element)
+
+    private void AddBonusesToList(List<GameElement> elements)
     {
-        if (!currentBonus.Contains(element))
+        foreach (var element in elements)
         {
-            currentBonus.Add(element);
+            if (IsBonus(element))
+            {
+                if (!currentBonus.Contains(element))
+                {
+                    currentBonus.Add(element);
+                }
+            }
         }
     }
-    private void IsMatchHaveBonus(GameElement element1, GameElement element2, GameElement element3)
-    {
-        if (IsBonus(element1))
-            AddBonusToList(element1);
-        if (IsBonus(element2))
-            AddBonusToList(element2);
-        if (IsBonus(element3))
-            AddBonusToList(element3);
-    }
 
 
-    private void AddToListAndMatch(GameElement element)
+    private void AddToCurrentMatches(List<GameElement> elements)
     {
-        if (!currentMatches.Contains(element))
+        foreach (var element in elements)
         {
-            currentMatches.Add(element);
+            if (!currentMatches.Contains(element))
+            {
+                currentMatches.Add(element);
+            }
         }
-        element.ChangeMatchState(true);
     }
 
-    private void GetNearbyPieces(GameElement element1, GameElement element2, GameElement element3)
+    private void MarkAsMatched(List<GameElement> elements)
     {
-        AddToListAndMatch(element1);
-        AddToListAndMatch(element2);
-        AddToListAndMatch(element3);
+        foreach (var element in elements)
+        {
+            element.ChangeMatchState(true);
+        }
     }
 
-    private IEnumerator FindAllMatchesCo()
+    private IEnumerator ProcessMatchesCo()
     {
         yield return new WaitForSeconds(.2f);
         for (int i = 0; i < Settings.Instance.Columns; i++)
@@ -70,8 +71,10 @@ public class MatchManager : MonoBehaviour
                         {
                             if (leftElement.ColorType == currentElement.ColorType && rightElement.ColorType == currentElement.ColorType)
                             {
-                                IsMatchHaveBonus(leftElement, currentElement, rightElement);
-                                GetNearbyPieces(leftElement, currentElement, rightElement);
+                                List < GameElement > lineElements = new List<GameElement> { leftElement, currentElement, rightElement };
+                                AddBonusesToList(lineElements);
+                                AddToCurrentMatches(lineElements);
+                                MarkAsMatched(lineElements);
                             }
                         }
                     }
@@ -84,8 +87,10 @@ public class MatchManager : MonoBehaviour
                         {
                             if (upElement.ColorType == currentElement.ColorType && downElement.ColorType == currentElement.ColorType)
                             {
-                                IsMatchHaveBonus(upElement, currentElement, downElement);
-                                GetNearbyPieces(upElement, currentElement, downElement);
+                                List<GameElement> lineElements = new List<GameElement> { upElement, currentElement, downElement };
+                                AddBonusesToList(lineElements);
+                                AddToCurrentMatches(lineElements);
+                                MarkAsMatched(lineElements);
                             }
                         }
                     }
@@ -132,13 +137,6 @@ public class MatchManager : MonoBehaviour
     }
     public void DestroyMatches()
     {
-        foreach (var item in currentBonus)
-        {
-            if (item.BonusType == BonusTypeEnum.ChangeCravityBonus)
-            {
-                isBonus = !isBonus;
-            }
-        }
         for (int i = 0; i < Settings.Instance.Columns; i++)
         {
             for (int j = 0; j < Settings.Instance.Rows; j++)
@@ -147,6 +145,13 @@ public class MatchManager : MonoBehaviour
                 {
                     DestroyMatchesAt(i, j);
                 }
+            }
+        }
+        foreach (var item in currentBonus)
+        {
+            if (item.BonusType == BonusTypeEnum.ChangeCravityBonus)
+            {
+                isBonus = !isBonus;
             }
         }
         currentBonus.Clear();

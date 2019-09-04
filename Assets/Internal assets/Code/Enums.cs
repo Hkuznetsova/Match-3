@@ -6,6 +6,6 @@
 
 public enum GameState
 {
-    WaitForMatching,
-    MovingGameElements,
+    Matching,
+    WaitingForAction,
 }

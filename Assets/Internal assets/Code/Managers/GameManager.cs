@@ -9,11 +9,11 @@ public class GameManager : MonoBehaviour
     public SpawnManager SpawnManager { get { return spawnManager; } }
     public MatchManager MatchManager { get { return matchManager; } }
 
-    [HideInInspector] public GameState currentState = GameState.MovingGameElements;
+    [HideInInspector] public GameState currentState = GameState.WaitingForAction;
 
-    [HideInInspector] public GameElement[,] Grid;
+    [HideInInspector] public Baloon[,] Grid;
 
-    [HideInInspector] public GameElement currentElement;
+    [HideInInspector] public Baloon currentElement;
 
     public static GameManager Instance;
 

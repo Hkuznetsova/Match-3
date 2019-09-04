@@ -3,11 +3,11 @@
 public class SpawnManager : MonoBehaviour
 {
     [SerializeField] Transform gridTransform;
-    [SerializeField] GameElement gameElementPrefab;
+    [SerializeField] Baloon gameElementPrefab;
 
     void Start()
     {
-        GameManager.Instance.Grid = new GameElement[Settings.Instance.Columns, Settings.Instance.Rows];
+        GameManager.Instance.Grid = new Baloon[Settings.Instance.Columns, Settings.Instance.Rows];
         StartFillGrid();
     }
 
@@ -25,7 +25,7 @@ public class SpawnManager : MonoBehaviour
     private void InstantiateElement(Vector2Int gridCoordinate, int color)
     {
         Vector2 elementPos = new Vector2(gridCoordinate.x, gridCoordinate.y);
-        GameElement gameElement = Instantiate(gameElementPrefab, elementPos, Quaternion.identity, gridTransform);
+        Baloon gameElement = Instantiate(gameElementPrefab, elementPos, Quaternion.identity, gridTransform);
         gameElement.Init(gridCoordinate.x, gridCoordinate.y, color);
         GameManager.Instance.Grid[gridCoordinate.x, gridCoordinate.y] = gameElement;
     }

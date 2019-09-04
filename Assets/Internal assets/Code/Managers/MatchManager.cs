@@ -5,8 +5,8 @@ using System.Linq;
 
 public class MatchManager : MonoBehaviour
 {
-    public List<GameElement> currentMatches = new List<GameElement>();
-    public List<GameElement> currentBonus = new List<GameElement>();
+    public List<Baloon> currentMatches = new List<Baloon>();
+    public List<Baloon> currentBonus = new List<Baloon>();
     bool isBonus =  false;
 
     public void ProcessMatches()
@@ -14,12 +14,12 @@ public class MatchManager : MonoBehaviour
         StartCoroutine(ProcessMatchesCo());
     }
 
-    private bool IsBonus(GameElement element)
+    private bool IsBonus(Baloon element)
     {
         return element.BonusType != BonusTypeEnum.None;
     }
 
-    private void AddBonusesToList(List<GameElement> elements)
+    private void AddBonusesToList(List<Baloon> elements)
     {
         foreach (var element in elements)
         {
@@ -34,7 +34,7 @@ public class MatchManager : MonoBehaviour
     }
 
 
-    private void AddToCurrentMatches(List<GameElement> elements)
+    private void AddToCurrentMatches(List<Baloon> elements)
     {
         foreach (var element in elements)
         {
@@ -45,7 +45,7 @@ public class MatchManager : MonoBehaviour
         }
     }
 
-    private void MarkAsMatched(List<GameElement> elements)
+    private void MarkAsMatched(List<Baloon> elements)
     {
         foreach (var element in elements)
         {
@@ -60,18 +60,18 @@ public class MatchManager : MonoBehaviour
         {
             for (int j = 0; j < Settings.Instance.Rows; j++)
             {
-                GameElement currentElement = GameManager.Instance.Grid[i, j];
+                Baloon currentElement = GameManager.Instance.Grid[i, j];
                 if (currentElement != null)
                 {
                     if (i > 0 && i < Settings.Instance.Columns - 1)
                     {
-                        GameElement leftElement = GameManager.Instance.Grid[i - 1, j];
-                        GameElement rightElement = GameManager.Instance.Grid[i + 1, j];
+                        Baloon leftElement = GameManager.Instance.Grid[i - 1, j];
+                        Baloon rightElement = GameManager.Instance.Grid[i + 1, j];
                         if (leftElement != null && rightElement != null)
                         {
                             if (leftElement.ColorType == currentElement.ColorType && rightElement.ColorType == currentElement.ColorType)
                             {
-                                List < GameElement > lineElements = new List<GameElement> { leftElement, currentElement, rightElement };
+                                List < Baloon > lineElements = new List<Baloon> { leftElement, currentElement, rightElement };
                                 AddBonusesToList(lineElements);
                                 AddToCurrentMatches(lineElements);
                                 MarkAsMatched(lineElements);
@@ -81,13 +81,13 @@ public class MatchManager : MonoBehaviour
 
                     if (j > 0 && j < Settings.Instance.Rows - 1)
                     {
-                        GameElement upElement = GameManager.Instance.Grid[i, j + 1];
-                        GameElement downElement = GameManager.Instance.Grid[i, j - 1];
+                        Baloon upElement = GameManager.Instance.Grid[i, j + 1];
+                        Baloon downElement = GameManager.Instance.Grid[i, j - 1];
                         if (upElement != null && downElement != null)
                         {
                             if (upElement.ColorType == currentElement.ColorType && downElement.ColorType == currentElement.ColorType)
                             {
-                                List<GameElement> lineElements = new List<GameElement> { upElement, currentElement, downElement };
+                                List<Baloon> lineElements = new List<Baloon> { upElement, currentElement, downElement };
                                 AddBonusesToList(lineElements);
                                 AddToCurrentMatches(lineElements);
                                 MarkAsMatched(lineElements);
@@ -109,9 +109,9 @@ public class MatchManager : MonoBehaviour
                 GameManager.Instance.currentElement.ChangeMatchState(false);
                 GameManager.Instance.currentElement.SetBonusType(BonusTypeEnum.ChangeCravityBonus);
             }
-            else if (GameManager.Instance.currentElement.otherDot != null)
+            else if (GameManager.Instance.currentElement.OtherBaloon != null)
             {
-                GameElement otherDot = GameManager.Instance.currentElement.otherDot;
+                Baloon otherDot = GameManager.Instance.currentElement.OtherBaloon;
                 if (otherDot.IsMatched)
                 {
                     otherDot.ChangeMatchState(false);
@@ -122,19 +122,6 @@ public class MatchManager : MonoBehaviour
         }
     }
 
-    //Баг с уничтожением разных цветов
-    private void DestroyMatchesAt(int column, int row)
-    {
-        if (GameManager.Instance.Grid[column, row].IsMatched)
-        {
-            if (currentMatches.Count >= 4)
-            {
-                CheckBonus();
-            }
-            Destroy(GameManager.Instance.Grid[column, row].gameObject);
-            GameManager.Instance.Grid[column, row] = null;
-        }
-    }
     public void DestroyMatches()
     {
         for (int i = 0; i < Settings.Instance.Columns; i++)
@@ -143,7 +130,15 @@ public class MatchManager : MonoBehaviour
             {
                 if (GameManager.Instance.Grid[i, j] != null)
                 {
-                    DestroyMatchesAt(i, j);
+                    if (GameManager.Instance.Grid[i, j].IsMatched)
+                    {
+                        if (currentMatches.Count >= 4)
+                        {
+                            CheckBonus();
+                        }
+                        Destroy(GameManager.Instance.Grid[i, j].gameObject);
+                        GameManager.Instance.Grid[i, j] = null;
+                    }
                 }
             }
         }
@@ -186,7 +181,7 @@ public class MatchManager : MonoBehaviour
             nullCount = 0;
         }
         yield return new WaitForSeconds(.4f);
-        StartCoroutine(FillBoardCo());
+        StartCoroutine(FillGridCo());
     }
 
     private IEnumerator DecreaseRowDownUpCo()
@@ -209,10 +204,11 @@ public class MatchManager : MonoBehaviour
             nullCount = 0;
         }
         yield return new WaitForSeconds(.4f);
-        StartCoroutine(FillBoardCo());
+        StartCoroutine(FillGridCo());
     }
     private bool MatchesOnBoard()
     {
+        
         for (int i = 0; i < Settings.Instance.Columns; i++)
         {
             for (int j = 0; j < Settings.Instance.Rows; j++)
@@ -229,7 +225,7 @@ public class MatchManager : MonoBehaviour
         return false;
     }
 
-    private IEnumerator FillBoardCo()
+    private IEnumerator FillGridCo()
     {
         GameManager.Instance.SpawnManager.RefillGrid();
         yield return new WaitForSeconds(.5f);
@@ -243,7 +239,7 @@ public class MatchManager : MonoBehaviour
         currentMatches.Clear();
         GameManager.Instance.currentElement = null;
         yield return new WaitForSeconds(.5f);
-        GameManager.Instance.currentState = GameState.MovingGameElements;
+        GameManager.Instance.currentState = GameState.WaitingForAction;
 
     }
 }

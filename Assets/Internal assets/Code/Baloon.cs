@@ -1,16 +1,16 @@
 ﻿using UnityEngine;
 
-public class GameElement : MonoBehaviour
+public class Baloon : MonoBehaviour
 {
     [SerializeField] SpriteRenderer changeGravityBonusSpritePrefab;
 
-    [HideInInspector]public BonusTypeEnum BonusType { get; private set; }
+    [HideInInspector] public BonusTypeEnum BonusType { get; private set; }
     [HideInInspector] public int ColorType { get; private set; }
     [HideInInspector] public int Column { get; private set; }
     [HideInInspector] public int Row { get; private set; }
     [HideInInspector] public bool IsMatched { get; private set; }
 
-    [HideInInspector] public GameElement otherDot;
+    [HideInInspector] public Baloon OtherBaloon;
     
     private SpriteRenderer sr;
 
@@ -40,12 +40,12 @@ public class GameElement : MonoBehaviour
         sr.color = Settings.Instance.colorArray[(int)color];
     }
 
-    public GameElement()
+    public Baloon()
     {
         BonusType = BonusTypeEnum.None;
     }
 
-    public bool IsColorType(GameElement ge)
+    public bool IsColorType(Baloon ge)
     {
         return ge.ColorType == ColorType;
     }
